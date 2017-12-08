@@ -34,5 +34,5 @@ python setup.py build_ext --inplace --debug --undef NDEBUG
 pip install .
 python ./test_example.py
 ```
-
-How to 
+### How to use ###
+Please check *demo_and_test* function in calibration.py file for example usage.
