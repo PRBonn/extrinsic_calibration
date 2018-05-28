@@ -74,7 +74,7 @@ def ExtrinsicCalibration3D(trajectories_list, trajectories_cov_list=None, *args)
     -----------
     calibration result as a list of matrix
     """
-    num_pose_list   = map(len, trajectories_list)
+    num_pose_list   = list(map(len, trajectories_list))
     if len(set(num_pose_list))!=1:
         raise ValueError("each trajectory should have the same number of poses")
 
@@ -96,7 +96,7 @@ def ExtrinsicCalibration3D(trajectories_list, trajectories_cov_list=None, *args)
         Cov_ll = np.tile(np.eye(6*num_sensor), (num_pose, 1, 1))
     else:
         Cov_ll = np.zeros((num_pose, 6*num_sensor, 6*num_sensor))
-        cov_list_time_majored = zip(*trajectories_cov_list) # list[sensor_idx][pose_idx] -> list[pose_idx][sensor_idx]
+        cov_list_time_majored = list(zip(*trajectories_cov_list)) # list[sensor_idx][pose_idx] -> list[pose_idx][sensor_idx]
         for pose_idx in range(num_pose):
             Cov_ll[pose_idx, :, :] = scipy.linalg.block_diag(*cov_list_time_majored[pose_idx])
 
@@ -137,7 +137,6 @@ def ExtrinsicCalibration3D(trajectories_list, trajectories_cov_list=None, *args)
     return [MfromRT(x[:3], x[3:]) for x in np.split(xnu, num_solution) ]
 
 #%%
-
 def demo_and_test():
     def randsp(n=3):
         v = np.random.uniform(-1, 1, size=n)
@@ -153,7 +152,7 @@ def demo_and_test():
     num_pose = 500
     dM = []
     Hm_inv = [np.linalg.inv(h) for h in Hm]
-    for t in xrange(num_pose):
+    for t in range(num_pose):
         dm = [MfromRT(randsp(),randsp())]   # base sensor
         for h, h_inv in zip(Hm, Hm_inv):    # other sensor
             dm.append( h.dot(dm[0]).dot(h_inv) )
@@ -176,9 +175,9 @@ def demo_and_test():
 
     H_est = ExtrinsicCalibration3D(noisy_trajectories, trajectory_covs)
     print("After refinement:")
-    map(print, H_est)
+    list(map(print, H_est))
     print("Ground truth:")
-    map(print, Hm)
+    list(map(print, Hm))
 
 if __name__ =='__main__':
    demo_and_test()

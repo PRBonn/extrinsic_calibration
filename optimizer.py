@@ -86,13 +86,13 @@ def SolveGaussHelmertProblem(g, x, lm, Cov_ll, maxiter=100, thres=1e-5):
     X_gg = np.empty( N )
 
     W_ll = np.empty_like(Cov_ll)
-    for i in xrange(N):
+    for i in range(N):
       W_ll[i] = np.linalg.pinv(Cov_ll[i])
 
-    for it in xrange(maxiter):
+    for it in range(maxiter):
         Nm[:,:] = 0
         nv[:] = 0
-        for i in xrange(N):
+        for i in range(N):
             # update Jacobian and residual
             err_i, Am[i], Bm[i] = g(xnu, lnu[i,:])
             A_i, B_i = Am[i], Bm[i]
@@ -105,7 +105,7 @@ def SolveGaussHelmertProblem(g, x, lm, Cov_ll, maxiter=100, thres=1e-5):
         sigma_gg = np.median(X_gg)/0.6745
         w = huber_w_smooth( X_gg/sigma_gg )
 
-        for i in xrange(N):
+        for i in range(N):
             # normal equation
             ATBWB = Am[i].T.dot(w[i]*W_gg[i])
             Nm  += ATBWB.dot(Am[i])
@@ -123,7 +123,7 @@ def SolveGaussHelmertProblem(g, x, lm, Cov_ll, maxiter=100, thres=1e-5):
         xnu = xnu + dx
 
         omega = 0
-        for i in xrange(N):
+        for i in range(N):
             lamba = W_gg[i].dot( Am[i].dot(dx) - Cg[i] )
             dl    = -Cov_ll[i].dot( Bm[i].T.dot(lamba) ) - vv[i]
 
@@ -133,7 +133,7 @@ def SolveGaussHelmertProblem(g, x, lm, Cov_ll, maxiter=100, thres=1e-5):
             vv[i] = lnu[i,:] - lm[i,:]
 
         Cov_xx  = np.linalg.pinv(Nm)
-        omega = np.sum([vv[i].dot(W_ll[i]).dot(vv[i]) for i in xrange(N)])
+        omega = np.sum([vv[i].dot(W_ll[i]).dot(vv[i]) for i in range(N)])
         sigma_0  = omega/R
         print('GH Iter %d: %f' % (it, sigma_0))
 
@@ -155,7 +155,7 @@ def test_SolveGaussHelmertProblem():
     lm = np.empty((T,3))
     x0 = x_true + sigma_x*np.random.randn(3)
     l_true = np.empty_like(x0)
-    for t in xrange(T):
+    for t in range(T):
       l_true[:2] = 3*np.random.randn(2)
       l_true[2]  = 10 - np.sum(l_true[:2])
       lm[t,:] = l_true + sigma_l*np.random.randn(3)
@@ -174,7 +174,7 @@ def test_SolveGaussHelmertProblem():
         return (A.dot(x)-l, A, -np.eye(len(l)))
 
 
-    for t in xrange(T):
+    for t in range(T):
       lm[t,:] = l_true + sigma_l*np.random.randn(3)
     Cov_ll = np.tile( sigma_l**2*np.eye(3), (T,1,1) )
 
@@ -190,7 +190,7 @@ def test_SolveGaussHelmertProblem():
     sigmas = np.empty(ntest)
     for i in range(ntest):
       x0 = x_true + sigma_x*np.random.randn(3)
-      for t in xrange(T):
+      for t in range(T):
             lm[t,:] = l_true + sigma_l*np.random.randn(3)
       xe, Cov_xx, sigmas[i], vv, w = SolveGaussHelmertProblem(f, x0, lm, Cov_ll)
     print("Mean sigma_0: %f (which should be close to 1)" % np.mean(sigmas))
